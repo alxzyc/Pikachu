@@ -8,6 +8,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
+    /* ==========================================================
+       1) VARIÁVEIS GLOBAIS DE TEMA
+       Essas variáveis centralizam cores, bordas e sombras.
+       Facilita manutenção: alterando aqui, o site inteiro acompanha.
+    ========================================================== */
     :root {
       --bg-start: #071025;
       --bg-mid: #0f2a3a;
@@ -23,6 +28,7 @@
       --shadow: 0 15px 40px rgba(0, 0, 0, 0.28);
     }
 
+    /* Reset básico para evitar diferenças entre navegadores */
     * {
       margin: 0;
       padding: 0;
@@ -30,6 +36,7 @@
     }
 
     html,
+    /* Configuração visual padrão da página */
     body {
       min-height: 100%;
     }
@@ -53,6 +60,7 @@
       display: none;
     }
 
+    /* Barra superior fixa e translúcida */
     header {
       position: sticky;
       top: 0;
@@ -113,6 +121,7 @@
       visibility: visible;
     }
 
+    /* Menu lateral que desliza da esquerda */
     .sidebar {
       position: fixed;
       left: 0;
@@ -158,12 +167,14 @@
       border-color: rgba(89, 247, 180, 0.45);
     }
 
+    /* Área principal do conteúdo */
     main {
       width: min(960px, 100%);
       margin: 0 auto;
-      padding: 20px;
+      padding: 24px 20px 40px;
     }
 
+    /* Cada "tela" do app é uma .page; só a ativa aparece */
     .page {
       display: none;
       animation: fade 0.25s ease;
@@ -184,15 +195,17 @@
       }
     }
 
+    /* Cartão base reutilizado em várias seções */
     .card {
       background: var(--surface);
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: var(--shadow);
       padding: clamp(16px, 3.6vw, 24px);
       border-radius: var(--radius);
-      margin-bottom: 18px;
+      margin-bottom: 26px;
     }
 
+    /* Tela de login ocupa quase toda altura da viewport */
     .login-screen {
       min-height: calc(100vh - 110px);
       position: relative;
@@ -207,6 +220,7 @@
       z-index: 0;
     }
 
+    /* Camadas de imagem para criar slideshow no fundo */
     .login-bg-layer {
       position: absolute;
       inset: 0;
@@ -240,6 +254,7 @@
       }
     }
 
+    /* Conteúdo do login centralizado sobre as imagens */
     .login-content {
       position: relative;
       z-index: 1;
@@ -249,6 +264,7 @@
       padding: 20px;
     }
 
+    /* Cartão de formulário de login */
     .login-panel {
       width: min(430px, 100%);
       background: rgba(3, 12, 22, 0.72);
@@ -304,11 +320,12 @@
       font-size: 1.1rem;
     }
 
+    /* Barra de filtros da seção de coleta */
     .filters {
       display: grid;
       grid-template-columns: 1fr 180px auto;
       gap: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
 
     input,
@@ -356,10 +373,12 @@
       filter: saturate(1.12);
     }
 
+    /* Grade reutilizada para cards lado a lado */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
+      margin-top: 8px;
     }
 
     .mini-card {
@@ -367,6 +386,7 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 14px;
       padding: 14px;
+      margin-bottom: 6px;
     }
 
     .mini-card h3 {
@@ -404,8 +424,8 @@
 
     .info-list {
       display: grid;
-      gap: 12px;
-      margin-top: 10px;
+      gap: 14px;
+      margin-top: 14px;
     }
 
     .info-item {
@@ -424,6 +444,14 @@
       padding: 10px;
       width: 100%;
       cursor: pointer;
+    }
+
+    .login-panel input + input,
+    .login-panel input + button,
+    #profile input + input,
+    #profile input + button,
+    #profile button + button {
+      margin-top: 10px;
     }
 
     @media (max-width: 760px) {
@@ -462,6 +490,11 @@
   </aside>
 
   <main>
+    <!-- ==========================================================
+         2) TELA PRINCIPAL (LOGIN)
+         É a primeira tela mostrada para o usuário.
+         Só após login as páginas do app são liberadas.
+    ========================================================== -->
     <section id="login" class="page active">
       <div class="login-screen">
         <div class="login-bg" aria-hidden="true">
@@ -484,6 +517,7 @@
       </div>
     </section>
 
+    <!-- Página inicial (aparece somente após autenticação) -->
     <section id="home" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-leaf" aria-hidden="true"></i> Página inicial</h2>
@@ -501,6 +535,7 @@
       </div>
     </section>
 
+    <!-- Página de pontos de coleta com filtros -->
     <section id="locations" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Pontos de coleta</h2>
@@ -521,6 +556,7 @@
       </div>
     </section>
 
+    <!-- Página de loja/recompensas -->
     <section id="shop" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-store" aria-hidden="true"></i> Loja</h2>
@@ -540,6 +576,7 @@
       </div>
     </section>
 
+    <!-- Página informativa/educativa -->
     <section id="info" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Informações importantes</h2>
@@ -566,6 +603,7 @@
       </div>
     </section>
 
+    <!-- Página de perfil e logout -->
     <section id="profile" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-user" aria-hidden="true"></i> Perfil</h2>
@@ -582,22 +620,35 @@
   </main>
 
   <script>
+    /*
+      ==========================================================
+      3) LÓGICA JAVASCRIPT DO APP
+      Organização geral:
+      - Controle de menu e navegação entre páginas
+      - Busca e renderização de pontos de coleta
+      - Perfil e validação de dados
+      - Sessão de login/logout
+      ==========================================================
+    */
     const sidebar = document.getElementById("sidebar");
     const backdrop = document.getElementById("backdrop");
     const menuBtn = document.getElementById("menuBtn");
 
+    // Abre/fecha o menu lateral e sincroniza acessibilidade (aria-expanded)
     function toggleMenu() {
       const isActive = sidebar.classList.toggle("active");
       backdrop.classList.toggle("active", isActive);
       menuBtn.setAttribute("aria-expanded", String(isActive));
     }
 
+    // Fecha o menu lateral explicitamente
     function closeMenu() {
       sidebar.classList.remove("active");
       backdrop.classList.remove("active");
       menuBtn.setAttribute("aria-expanded", "false");
     }
 
+    // Mostra uma página específica e oculta as demais
     function showPage(id) {
       document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
       document.getElementById(id).classList.add("active");
@@ -610,6 +661,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // Base de dados local (mock) de pontos de coleta
     const locations = [
       { name: "EcoPonto Central", type: "celular", bairro: "Centro", horario: "08h às 18h" },
       { name: "Tech Verde", type: "notebook", bairro: "Jardins", horario: "09h às 19h" },
@@ -617,6 +669,7 @@
       { name: "Ponto Eletrônico Norte", type: "celular", bairro: "Zona Norte", horario: "10h às 20h" }
     ];
 
+    // Cria o card visual de um ponto de coleta usando DOM seguro
     function renderLocationCard(location) {
       const card = document.createElement("div");
       card.className = "mini-card";
@@ -640,6 +693,7 @@
       return card;
     }
 
+    // Filtra locations por texto e categoria, depois renderiza os resultados
     function searchLocations() {
       const searchValue = document.getElementById("search").value.trim().toLowerCase();
       const category = document.getElementById("category").value;
@@ -666,6 +720,7 @@
       });
     }
 
+    // Exibe mensagens de status (sucesso/erro) em áreas específicas da UI
     function setStatus(message, variant, targetId = "status") {
       const status = document.getElementById(targetId);
       status.textContent = message;
@@ -673,10 +728,12 @@
       status.classList.add(variant);
     }
 
+    // Validação simples de formato de email
     function isValidEmail(email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
+    // Salva dados do perfil no localStorage com validações básicas
     function saveProfile() {
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
@@ -697,6 +754,7 @@
       updateKPIs();
     }
 
+    // Carrega perfil salvo e trata dados corrompidos
     function loadProfile() {
       const raw = localStorage.getItem("ecodescarte_user");
       if (!raw) return;
@@ -711,6 +769,7 @@
       }
     }
 
+    // Atualiza cartões de impacto com base na existência de perfil
     function updateKPIs() {
       const hasProfile = Boolean(localStorage.getItem("ecodescarte_user"));
       const points = hasProfile ? 180 : 30;
@@ -722,6 +781,7 @@
       document.getElementById("kpiCO2").textContent = `${co2}kg`;
     }
 
+    // Libera visualmente o app após login válido
     function enableApp() {
       document.body.classList.remove("logged-out");
       showPage("home");
@@ -729,6 +789,7 @@
       searchLocations();
     }
 
+    // Volta para modo deslogado e mostra tela de login
     function disableApp() {
       document.body.classList.add("logged-out");
       document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
@@ -736,6 +797,7 @@
       closeMenu();
     }
 
+    // Processa login (demo local) e persiste sessão no navegador
     function login() {
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
@@ -755,12 +817,14 @@
       setTimeout(enableApp, 150);
     }
 
+    // Encerra a sessão local e retorna para a tela de login
     function logout() {
       localStorage.removeItem("ecodescarte_session");
       setStatus("Você saiu da conta.", "success", "loginStatus");
       disableApp();
     }
 
+    // Recupera sessão salva ao abrir a página
     function loadSession() {
       const raw = localStorage.getItem("ecodescarte_session");
       if (!raw) {
