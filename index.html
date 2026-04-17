@@ -41,6 +41,18 @@
       line-height: 1.45;
     }
 
+    body.logged-out .app-only {
+      display: none !important;
+    }
+
+    body.logged-out header {
+      justify-content: center;
+    }
+
+    body.logged-out .menu-btn {
+      display: none;
+    }
+
     header {
       position: sticky;
       top: 0;
@@ -179,6 +191,72 @@
       padding: clamp(16px, 3.6vw, 24px);
       border-radius: var(--radius);
       margin-bottom: 18px;
+    }
+
+    .login-screen {
+      min-height: calc(100vh - 110px);
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .login-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .login-bg-layer {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      animation: slideshow 18s infinite;
+    }
+
+    .layer1 {
+      background-image: linear-gradient(rgba(5, 11, 23, 0.6), rgba(5, 11, 23, 0.65)), url('https://images.unsplash.com/photo-1473447198193-c4f0d8d8d0f5?auto=format&fit=crop&w=1600&q=80');
+      animation-delay: 0s;
+    }
+
+    .layer2 {
+      background-image: linear-gradient(rgba(5, 11, 23, 0.62), rgba(5, 11, 23, 0.62)), url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80');
+      animation-delay: 6s;
+    }
+
+    .layer3 {
+      background-image: linear-gradient(rgba(5, 11, 23, 0.62), rgba(5, 11, 23, 0.62)), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80');
+      animation-delay: 12s;
+    }
+
+    @keyframes slideshow {
+      0%, 27% {
+        opacity: 1;
+      }
+      33%, 100% {
+        opacity: 0;
+      }
+    }
+
+    .login-content {
+      position: relative;
+      z-index: 1;
+      min-height: calc(100vh - 110px);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .login-panel {
+      width: min(430px, 100%);
+      background: rgba(3, 12, 22, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(6px);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
     }
 
     h2 {
@@ -324,6 +402,30 @@
       color: var(--text-muted);
     }
 
+    .info-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .info-item {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .logout-btn {
+      margin-top: 10px;
+      background: transparent;
+      color: #ffd5d5;
+      border: 1px solid rgba(255, 132, 132, 0.55);
+      border-radius: 12px;
+      padding: 10px;
+      width: 100%;
+      cursor: pointer;
+    }
+
     @media (max-width: 760px) {
       .filters {
         grid-template-columns: 1fr;
@@ -333,22 +435,26 @@
       .kpi {
         grid-template-columns: 1fr;
       }
+
+      .login-panel {
+        padding: 18px;
+      }
     }
   </style>
 </head>
-<body>
+<body class="logged-out">
   <header>
     <div class="brand"><i class="fa-solid fa-recycle" aria-hidden="true"></i> EcoDescarte</div>
-    <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu">
+    <button class="menu-btn app-only" id="menuBtn" onclick="toggleMenu()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu">
       <i class="fa-solid fa-bars" aria-hidden="true"></i>
     </button>
   </header>
 
-  <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
+  <div class="backdrop app-only" id="backdrop" onclick="closeMenu()"></div>
 
-  <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
+  <aside class="sidebar app-only" id="sidebar" aria-label="Menu lateral">
     <p class="menu-title">Navegação</p>
-    <button class="nav-btn active" data-page="home" onclick="showPage('home')"><i class="fa-solid fa-house"></i> Início</button>
+    <button class="nav-btn" data-page="home" onclick="showPage('home')"><i class="fa-solid fa-house"></i> Início</button>
     <button class="nav-btn" data-page="locations" onclick="showPage('locations')"><i class="fa-solid fa-location-dot"></i> Coleta</button>
     <button class="nav-btn" data-page="shop" onclick="showPage('shop')"><i class="fa-solid fa-store"></i> Loja</button>
     <button class="nav-btn" data-page="info" onclick="showPage('info')"><i class="fa-solid fa-circle-info"></i> Info</button>
@@ -356,7 +462,29 @@
   </aside>
 
   <main>
-    <section id="home" class="page active">
+    <section id="login" class="page active">
+      <div class="login-screen">
+        <div class="login-bg" aria-hidden="true">
+          <div class="login-bg-layer layer1"></div>
+          <div class="login-bg-layer layer2"></div>
+          <div class="login-bg-layer layer3"></div>
+        </div>
+
+        <div class="login-content">
+          <div class="login-panel">
+            <h2><i class="fa-solid fa-shield-heart"></i> Bem-vindo ao EcoDescarte</h2>
+            <p class="subtitle">Faça login para acompanhar pontos, encontrar locais de coleta e ajudar o planeta com ações simples.</p>
+
+            <input id="loginEmail" type="email" placeholder="Seu email" autocomplete="email" />
+            <input id="loginPassword" type="password" placeholder="Sua senha" autocomplete="current-password" />
+            <button class="primary-btn" onclick="login()">Entrar</button>
+            <p id="loginStatus" class="status" role="status"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="home" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-leaf" aria-hidden="true"></i> Página inicial</h2>
         <p class="subtitle">Aprenda sobre descarte correto e acompanhe o impacto das suas ações.</p>
@@ -373,7 +501,7 @@
       </div>
     </section>
 
-    <section id="locations" class="page">
+    <section id="locations" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Pontos de coleta</h2>
         <p class="subtitle">Filtre por nome ou categoria para encontrar o local ideal.</p>
@@ -393,7 +521,7 @@
       </div>
     </section>
 
-    <section id="shop" class="page">
+    <section id="shop" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-store" aria-hidden="true"></i> Loja</h2>
         <p class="subtitle">Use seus pontos em benefícios sustentáveis.</p>
@@ -412,14 +540,33 @@
       </div>
     </section>
 
-    <section id="info" class="page">
+    <section id="info" class="page app-only">
       <div class="card">
-        <h2><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Informações</h2>
-        <p class="muted">O descarte correto reduz lixo tóxico e protege recursos naturais. 🌱</p>
+        <h2><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Informações importantes</h2>
+        <p class="subtitle">Descartar eletrônicos corretamente evita contaminação do solo e da água, reduz emissões e reaproveita materiais valiosos.</p>
+
+        <div class="info-list">
+          <div class="info-item">
+            <strong>1) Separe por tipo de resíduo</strong>
+            <p class="muted">Guarde baterias, cabos, celulares e notebooks em recipientes separados para facilitar a reciclagem correta.</p>
+          </div>
+          <div class="info-item">
+            <strong>2) Não jogue no lixo comum</strong>
+            <p class="muted">Componentes eletrônicos têm metais e substâncias tóxicas. O descarte incorreto pode contaminar o meio ambiente por anos.</p>
+          </div>
+          <div class="info-item">
+            <strong>3) Use pontos de coleta confiáveis</strong>
+            <p class="muted">Prefira locais cadastrados e, quando possível, remova dados pessoais dos dispositivos antes da entrega.</p>
+          </div>
+          <div class="info-item">
+            <strong>4) Impacto positivo acumulado</strong>
+            <p class="muted">Cada descarte correto contribui para economia circular, reduz extração de matéria-prima e fortalece hábitos sustentáveis.</p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="profile" class="page">
+    <section id="profile" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-user" aria-hidden="true"></i> Perfil</h2>
         <p class="subtitle">Complete seus dados para salvar seu progresso localmente.</p>
@@ -428,6 +575,7 @@
         <input id="email" type="email" placeholder="Email" autocomplete="email" />
 
         <button class="primary-btn" onclick="saveProfile()">Salvar</button>
+        <button class="logout-btn" onclick="logout()">Sair da conta</button>
         <p id="status" class="status" role="status"></p>
       </div>
     </section>
@@ -518,8 +666,8 @@
       });
     }
 
-    function setStatus(message, variant) {
-      const status = document.getElementById("status");
+    function setStatus(message, variant, targetId = "status") {
+      const status = document.getElementById(targetId);
       status.textContent = message;
       status.classList.remove("success", "error");
       status.classList.add(variant);
@@ -574,8 +722,72 @@
       document.getElementById("kpiCO2").textContent = `${co2}kg`;
     }
 
+    function enableApp() {
+      document.body.classList.remove("logged-out");
+      showPage("home");
+      updateKPIs();
+      searchLocations();
+    }
+
+    function disableApp() {
+      document.body.classList.add("logged-out");
+      document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
+      document.getElementById("login").classList.add("active");
+      closeMenu();
+    }
+
+    function login() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+
+      if (!email || !password) {
+        setStatus("Informe email e senha para entrar.", "error", "loginStatus");
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        setStatus("Digite um email válido para login.", "error", "loginStatus");
+        return;
+      }
+
+      localStorage.setItem("ecodescarte_session", JSON.stringify({ email, loggedAt: new Date().toISOString() }));
+      setStatus("Login realizado com sucesso!", "success", "loginStatus");
+      setTimeout(enableApp, 150);
+    }
+
+    function logout() {
+      localStorage.removeItem("ecodescarte_session");
+      setStatus("Você saiu da conta.", "success", "loginStatus");
+      disableApp();
+    }
+
+    function loadSession() {
+      const raw = localStorage.getItem("ecodescarte_session");
+      if (!raw) {
+        disableApp();
+        return;
+      }
+
+      try {
+        const session = JSON.parse(raw);
+        if (!session || typeof session !== "object" || !isValidEmail(session.email || "")) {
+          localStorage.removeItem("ecodescarte_session");
+          disableApp();
+          return;
+        }
+        document.getElementById("loginEmail").value = session.email;
+        enableApp();
+      } catch {
+        localStorage.removeItem("ecodescarte_session");
+        disableApp();
+      }
+    }
+
     window.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeMenu();
+      if (event.key === "Enter" && document.getElementById("login").classList.contains("active")) {
+        login();
+      }
     });
 
     document.getElementById("search").addEventListener("input", searchLocations);
@@ -583,8 +795,7 @@
 
     window.onload = () => {
       loadProfile();
-      searchLocations();
-      updateKPIs();
+      loadSession();
     };
   </script>
 </body>
