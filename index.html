@@ -48,6 +48,7 @@
       line-height: 1.45;
     }
 
+    /* Quando estiver deslogado, os elementos com classe app-only somem */
     body.logged-out .app-only {
       display: none !important;
     }
@@ -106,6 +107,7 @@
       outline: none;
     }
 
+    /* Fundo escurecido atrás do menu lateral */
     .backdrop {
       position: fixed;
       inset: 0;
@@ -470,7 +472,7 @@
     }
   </style>
 </head>
-<body class="logged-out">
+<body>
   <header>
     <div class="brand"><i class="fa-solid fa-recycle" aria-hidden="true"></i> EcoDescarte</div>
     <button class="menu-btn app-only" id="menuBtn" onclick="toggleMenu()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu">
@@ -495,7 +497,7 @@
          É a primeira tela mostrada para o usuário.
          Só após login as páginas do app são liberadas.
     ========================================================== -->
-    <section id="login" class="page active">
+    <section id="login" class="page">
       <div class="login-screen">
         <div class="login-bg" aria-hidden="true">
           <div class="login-bg-layer layer1"></div>
@@ -518,13 +520,20 @@
     </section>
 
     <!-- Página inicial (aparece somente após autenticação) -->
-    <section id="home" class="page app-only">
+    <section id="home" class="page active">
       <div class="card">
         <h2><i class="fa-solid fa-leaf" aria-hidden="true"></i> Página inicial</h2>
         <p class="subtitle">Aprenda sobre descarte correto e acompanhe o impacto das suas ações.</p>
 
         <div class="video-container">
-          <iframe src="https://www.youtube.com/embed/Gqk161ll21s?playsinline=1" title="Vídeo educativo sobre descarte correto" allowfullscreen loading="lazy"></iframe>
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/lM02vNMRRB0?rel=0&modestbranding=1&playsinline=1"
+            title="Vídeo educativo sobre descarte correto"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
         </div>
 
         <div class="kpi" aria-label="Resumo de impacto">
@@ -860,6 +869,9 @@
     window.onload = () => {
       loadProfile();
       loadSession();
+      if (document.body.classList.contains("logged-out")) {
+        showPage("home");
+      }
     };
   </script>
 </body>

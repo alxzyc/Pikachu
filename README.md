@@ -5,6 +5,7 @@ Projeto de interface web para incentivar o descarte correto de eletrônicos.
 ## Melhorias aplicadas
 
 - Tela de login criada e definida como tela principal.
+- Tela principal ajustada para abrir diretamente na Home com vídeo educativo.
 - Login com visual mais atrativo usando slideshow de imagens de fundo.
 - Navegação do app liberada apenas após login e opção de logout no perfil.
 - Filtros de pontos de coleta com busca em tempo real.
@@ -14,6 +15,7 @@ Projeto de interface web para incentivar o descarte correto de eletrônicos.
   - persistência segura no `localStorage`;
   - tratamento de dados corrompidos.
 - Texto da página de informações expandido, mais claro e educativo.
+- Embed de vídeo atualizado (`youtube-nocookie`) com permissões de reprodução para evitar falhas de carregamento.
 
 ## Explicação detalhada do código (para apresentação do trabalho)
 
