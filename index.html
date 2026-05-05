@@ -1,67 +1,114 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <!--
+    ============================================================
+    ECO DESCARTE - VERSÃO COM ÁREA DE APRESENTAÇÃO EM VÍDEO
+    ============================================================
+    Ideia principal desta versão:
+    - A página inicial deixa de ser só um card simples.
+    - O vídeo vira a área principal de apresentação do projeto.
+    - O usuário entende rapidamente: o que é o EcoDescarte, por que usar e para onde ir.
+    - O código foi comentado de forma prática para facilitar apresentação em trabalho escolar/faculdade.
+  -->
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EcoDescarte</title>
 
+  <!-- Biblioteca de ícones. Ela permite usar classes como fa-solid fa-recycle. -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
-    /* ==========================================================
-       1) VARIÁVEIS GLOBAIS DE TEMA
-       Essas variáveis centralizam cores, bordas e sombras.
-       Facilita manutenção: alterando aqui, o site inteiro acompanha.
-    ========================================================== */
+    /*
+      ============================================================
+      1) VARIÁVEIS DO TEMA
+      ============================================================
+      Aqui ficam as cores e medidas principais do site.
+      Vantagem: se quiser mudar a identidade visual inteira, você altera quase tudo aqui.
+    */
     :root {
-      --bg-start: #071025;
-      --bg-mid: #0f2a3a;
-      --bg-end: #14544c;
+      --bg-start: #06111f;
+      --bg-mid: #0b2c36;
+      --bg-end: #116146;
       --surface: rgba(255, 255, 255, 0.08);
       --surface-strong: rgba(255, 255, 255, 0.14);
-      --text: #f4f7fb;
-      --text-muted: #c8d5e1;
-      --accent: #59f7b4;
-      --accent-dark: #2bc686;
+      --surface-card: rgba(7, 22, 36, 0.72);
+      --text: #f4f9fb;
+      --text-muted: #c4d4de;
+      --accent: #5cffb1;
+      --accent-2: #7dd3fc;
+      --accent-dark: #26c77d;
       --danger: #ff6b6b;
-      --radius: 18px;
-      --shadow: 0 15px 40px rgba(0, 0, 0, 0.28);
+      --warning: #facc15;
+      --radius: 22px;
+      --shadow: 0 22px 65px rgba(0, 0, 0, 0.34);
     }
 
-    /* Reset básico para evitar diferenças entre navegadores */
+    /* Reset básico: remove margens padrão do navegador e facilita controlar tamanhos. */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    html,
-    /* Configuração visual padrão da página */
-    body {
-      min-height: 100%;
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
+      min-height: 100vh;
       font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: linear-gradient(135deg, var(--bg-start), var(--bg-mid), var(--bg-end));
       color: var(--text);
       line-height: 1.45;
+      background:
+        radial-gradient(circle at top left, rgba(92, 255, 177, 0.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(125, 211, 252, 0.14), transparent 28%),
+        linear-gradient(135deg, var(--bg-start), var(--bg-mid), var(--bg-end));
+      overflow-x: hidden;
     }
 
-    /* Quando estiver deslogado, os elementos com classe app-only somem */
-    body.logged-out .app-only {
+    /* Efeito decorativo de brilho no fundo. Não interfere no conteúdo. */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.65), transparent 70%);
+    }
+
+
+
+    /*
+      CONTROLE DE ESTADO DA HOME
+      - .guest-only aparece apenas para visitantes sem sessão salva.
+      - .logged-only aparece apenas quando existe login/cadastro no localStorage.
+      Isso resolve o problema: a explicação e cadastro aparecem só para quem ainda não entrou.
+    */
+    body.logged-in .guest-only {
       display: none !important;
     }
 
-    body.logged-out header {
-      justify-content: center;
+    body:not(.logged-in) .logged-only {
+      display: none !important;
     }
 
-    body.logged-out .menu-btn {
-      display: none;
-    }
+    /*
+      Antes, o site escondia o menu e as páginas quando o usuário estava deslogado.
+      Agora isso foi removido: o vídeo/apresentação é a parte principal e aparece para todos.
+      O login fica apenas como recurso opcional, não como bloqueio inicial.
+    */
 
-    /* Barra superior fixa e translúcida */
+    /*
+      ============================================================
+      2) CABEÇALHO E MENU LATERAL
+      ============================================================
+      Header fica fixo no topo e o menu abre pela esquerda.
+    */
     header {
       position: sticky;
       top: 0;
@@ -70,32 +117,38 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      padding: 14px 18px;
-      backdrop-filter: blur(8px);
-      background: rgba(4, 10, 20, 0.5);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 20px;
+      backdrop-filter: blur(12px);
+      background: rgba(3, 10, 20, 0.62);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 0.2px;
     }
 
     .brand i {
-      color: var(--accent);
-      font-size: 1.2rem;
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      color: #052014;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(92, 255, 177, 0.18);
     }
 
     .menu-btn {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       color: var(--text);
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
       cursor: pointer;
       transition: 0.2s ease;
     }
@@ -103,19 +156,19 @@
     .menu-btn:hover,
     .menu-btn:focus-visible {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(89, 247, 180, 0.2);
+      box-shadow: 0 0 0 4px rgba(92, 255, 177, 0.16);
       outline: none;
+      transform: translateY(-1px);
     }
 
-    /* Fundo escurecido atrás do menu lateral */
     .backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.56);
       opacity: 0;
       visibility: hidden;
       transition: 0.25s ease;
-      z-index: 10;
+      z-index: 30;
     }
 
     .backdrop.active {
@@ -123,20 +176,22 @@
       visibility: visible;
     }
 
-    /* Menu lateral que desliza da esquerda */
     .sidebar {
       position: fixed;
       left: 0;
       top: 0;
-      width: min(280px, 85vw);
+      width: min(300px, 86vw);
       height: 100%;
       transform: translateX(-100%);
-      background: #0a1525;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 20px 14px;
+      background: rgba(5, 17, 31, 0.96);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 22px 14px;
       transition: 0.28s ease;
-      z-index: 15;
+      /* Fica acima do header para o primeiro botão não ficar escondido no topo. */
+      z-index: 35;
       overflow-y: auto;
+      backdrop-filter: blur(10px);
+      padding-top: 82px;
     }
 
     .sidebar.active {
@@ -144,52 +199,61 @@
     }
 
     .menu-title {
-      font-size: 0.9rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
       color: var(--text-muted);
-      margin: 0 10px 10px;
+      margin: 0 10px 12px;
     }
 
     .nav-btn {
       width: 100%;
-      margin-bottom: 8px;
-      padding: 12px 14px;
+      margin-bottom: 9px;
+      padding: 13px 14px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.04);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.045);
       color: var(--text);
       text-align: left;
       cursor: pointer;
       transition: 0.2s ease;
-      font-size: 0.95rem;
+      font-size: 0.96rem;
+    }
+
+    .nav-btn i {
+      width: 22px;
+      color: var(--accent);
     }
 
     .nav-btn:hover,
     .nav-btn.active {
-      background: rgba(89, 247, 180, 0.18);
-      border-color: rgba(89, 247, 180, 0.45);
+      background: rgba(92, 255, 177, 0.16);
+      border-color: rgba(92, 255, 177, 0.44);
+      transform: translateX(3px);
     }
 
-    /* Área principal do conteúdo */
     main {
-      width: min(960px, 100%);
+      width: min(1120px, 100%);
       margin: 0 auto;
-      padding: 24px 20px 40px;
+      padding: 24px 20px 46px;
+      position: relative;
+      z-index: 1;
     }
 
-    /* Cada "tela" do app é uma .page; só a ativa aparece */
+    /* Cada tela do sistema é uma .page. Só a .active aparece. */
     .page {
       display: none;
-      animation: fade 0.25s ease;
+      animation: fadeUp 0.28s ease;
     }
 
     .page.active {
       display: block;
     }
 
-    @keyframes fade {
+    @keyframes fadeUp {
       from {
         opacity: 0;
-        transform: translateY(4px);
+        transform: translateY(8px);
       }
       to {
         opacity: 1;
@@ -197,23 +261,19 @@
       }
     }
 
-    /* Cartão base reutilizado em várias seções */
-    .card {
-      background: var(--surface);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: var(--shadow);
-      padding: clamp(16px, 3.6vw, 24px);
-      border-radius: var(--radius);
-      margin-bottom: 26px;
-    }
-
-    /* Tela de login ocupa quase toda altura da viewport */
+    /*
+      ============================================================
+      3) TELA DE LOGIN
+      ============================================================
+      Mantém o login bonito, mas a grande apresentação mesmo fica depois, na home.
+    */
     .login-screen {
-      min-height: calc(100vh - 110px);
+      min-height: calc(100vh - 115px);
       position: relative;
       overflow: hidden;
-      border-radius: 22px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: var(--shadow);
     }
 
     .login-bg {
@@ -222,7 +282,6 @@
       z-index: 0;
     }
 
-    /* Camadas de imagem para criar slideshow no fundo */
     .login-bg-layer {
       position: absolute;
       inset: 0;
@@ -233,67 +292,336 @@
     }
 
     .layer1 {
-      background-image: linear-gradient(rgba(5, 11, 23, 0.6), rgba(5, 11, 23, 0.65)), url('https://images.unsplash.com/photo-1473447198193-c4f0d8d8d0f5?auto=format&fit=crop&w=1600&q=80');
+      background-image: linear-gradient(rgba(3, 10, 20, 0.64), rgba(3, 10, 20, 0.74)), url('https://images.unsplash.com/photo-1473447198193-c4f0d8d8d0f5?auto=format&fit=crop&w=1600&q=80');
       animation-delay: 0s;
     }
 
     .layer2 {
-      background-image: linear-gradient(rgba(5, 11, 23, 0.62), rgba(5, 11, 23, 0.62)), url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80');
+      background-image: linear-gradient(rgba(3, 10, 20, 0.68), rgba(3, 10, 20, 0.72)), url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80');
       animation-delay: 6s;
     }
 
     .layer3 {
-      background-image: linear-gradient(rgba(5, 11, 23, 0.62), rgba(5, 11, 23, 0.62)), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80');
+      background-image: linear-gradient(rgba(3, 10, 20, 0.68), rgba(3, 10, 20, 0.72)), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80');
       animation-delay: 12s;
     }
 
     @keyframes slideshow {
-      0%, 27% {
-        opacity: 1;
-      }
-      33%, 100% {
-        opacity: 0;
-      }
+      0%, 27% { opacity: 1; }
+      33%, 100% { opacity: 0; }
     }
 
-    /* Conteúdo do login centralizado sobre as imagens */
     .login-content {
       position: relative;
       z-index: 1;
-      min-height: calc(100vh - 110px);
+      min-height: calc(100vh - 115px);
       display: grid;
       place-items: center;
-      padding: 20px;
+      padding: 22px;
     }
 
-    /* Cartão de formulário de login */
     .login-panel {
-      width: min(430px, 100%);
-      background: rgba(3, 12, 22, 0.72);
+      width: min(460px, 100%);
+      background: rgba(3, 12, 22, 0.78);
       border: 1px solid rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(6px);
-      border-radius: 18px;
-      padding: 24px;
+      backdrop-filter: blur(10px);
+      border-radius: 22px;
+      padding: clamp(20px, 4vw, 30px);
       box-shadow: var(--shadow);
     }
 
-    h2 {
-      margin-bottom: 8px;
-      font-size: clamp(1.12rem, 2.6vw, 1.5rem);
+    /*
+      ============================================================
+      4) ÁREA PRINCIPAL DE APRESENTAÇÃO COM VÍDEO
+      ============================================================
+      Essa é a parte mais importante visualmente.
+      O layout tem duas colunas:
+      - esquerda: título, explicação e botões de ação
+      - direita: vídeo grande, destacado como apresentação do projeto
+    */
+    .presentation-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 22px;
+      align-items: start;
+      margin-bottom: 22px;
+      position: relative;
     }
 
-    .subtitle {
+    /*
+      Este brilho atrás do hero dá profundidade, parecendo uma tela de apresentação profissional.
+      Como ele fica absoluto, ele acompanha apenas essa seção.
+    */
+    .presentation-hero::before {
+      content: "";
+      position: absolute;
+      inset: -18px;
+      border-radius: 34px;
+      background:
+        linear-gradient(120deg, rgba(92, 255, 177, 0.20), transparent 32%),
+        linear-gradient(300deg, rgba(125, 211, 252, 0.16), transparent 38%);
+      filter: blur(8px);
+      opacity: 0.72;
+      z-index: -1;
+    }
+
+    .hero-copy,
+    .video-stage {
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.055)),
+        rgba(7, 22, 36, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 32px;
+      box-shadow: 0 26px 80px rgba(0, 0, 0, 0.34);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+    }
+
+    .hero-copy {
+      padding: clamp(22px, 4.4vw, 42px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      min-height: auto;
+    }
+
+    .hero-copy::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 35%),
+        radial-gradient(circle at 18% 20%, rgba(92, 255, 177, 0.18), transparent 35%);
+      pointer-events: none;
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -95px;
+      bottom: -95px;
+      background: radial-gradient(circle, rgba(92, 255, 177, 0.30), transparent 68%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 9px 13px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(92, 255, 177, 0.34);
+      background: rgba(92, 255, 177, 0.12);
+      color: var(--accent);
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 4.6vw, 4rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-title span {
+      color: transparent;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .hero-text {
       color: var(--text-muted);
-      margin-bottom: 14px;
+      font-size: clamp(1rem, 2vw, 1.14rem);
+      max-width: 58ch;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .ghost-btn {
+      padding: 13px 16px;
+      border-radius: 15px;
+      font-size: 0.96rem;
+      font-weight: 850;
+      cursor: pointer;
+      transition: 0.18s ease;
+      border: none;
+    }
+
+    .primary-btn {
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+      color: #042315;
+      box-shadow: 0 18px 36px rgba(38, 199, 125, 0.26);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.09);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .ghost-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px dashed rgba(255, 255, 255, 0.28);
+    }
+
+    .primary-btn:hover,
+    .secondary-btn:hover,
+    .ghost-btn:hover {
+      transform: translateY(-2px);
+      filter: saturate(1.12);
+    }
+
+    .hero-mini-list {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 24px;
+    }
+
+    .hero-mini-list p {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--text-muted);
+      font-size: 0.96rem;
+    }
+
+    .hero-mini-list i {
+      color: var(--accent);
+    }
+
+    .hero-proof {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .proof-card {
+      padding: 13px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .proof-card strong {
+      display: block;
+      font-size: 1.35rem;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .proof-card span {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    .video-stage {
+      padding: clamp(12px, 2vw, 18px);
+      position: relative;
+      min-height: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .video-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 85% 12%, rgba(125, 211, 252, 0.18), transparent 35%),
+        radial-gradient(circle at 15% 95%, rgba(92, 255, 177, 0.14), transparent 30%);
+      pointer-events: none;
+    }
+
+    .video-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 5px 5px 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .video-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      font-size: 0.96rem;
+      font-weight: 800;
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(92, 255, 177, 0.12);
+      border: 1px solid rgba(92, 255, 177, 0.22);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(92, 255, 177, 0.12);
     }
 
     .video-container {
       position: relative;
       width: 100%;
-      border-radius: 14px;
+      border-radius: 26px;
       overflow: hidden;
       background: #000;
       aspect-ratio: 16 / 9;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+      z-index: 1;
+    }
+
+    .video-container::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
     }
 
     .video-container iframe {
@@ -303,108 +631,186 @@
       display: block;
     }
 
-    .kpi {
+    .floating-note {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(2, 10, 20, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: none;
+      backdrop-filter: blur(12px);
+    }
+
+    .floating-note i {
+      color: var(--accent);
+      font-size: 1.2rem;
+    }
+
+    .floating-note strong {
+      display: block;
+      font-size: 0.88rem;
+    }
+
+    .floating-note span {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .video-caption {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       margin-top: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .caption-item {
+      padding: 13px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .caption-item strong {
+      display: block;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .caption-item span {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    /*
+      ============================================================
+      5) CARDS, KPIS E CONTEÚDOS INTERNOS
+      ============================================================
+      Componentes reutilizados em várias páginas.
+    */
+    .card {
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--shadow);
+      padding: clamp(17px, 3.6vw, 26px);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      font-size: clamp(1.18rem, 2.6vw, 1.65rem);
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
 
     .kpi-item {
-      background: var(--surface-strong);
-      border-radius: 12px;
-      padding: 12px;
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 18px;
       text-align: center;
     }
 
     .kpi-item strong {
       display: block;
-      font-size: 1.1rem;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 6px;
     }
 
-    /* Barra de filtros da seção de coleta */
     .filters {
       display: grid;
-      grid-template-columns: 1fr 180px auto;
+      grid-template-columns: 1fr 190px auto;
       gap: 10px;
       margin-bottom: 18px;
     }
 
     input,
-    select,
-    .primary-btn {
-      width: 100%;
-      padding: 11px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      font-size: 0.96rem;
-    }
-
-    input,
     select {
+      width: 100%;
+      padding: 12px 13px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.96rem;
       color: var(--text);
       background: rgba(255, 255, 255, 0.08);
     }
 
     input::placeholder {
-      color: #bfd0de;
+      color: #bdd1de;
     }
 
     input:focus,
     select:focus,
-    .primary-btn:focus-visible {
-      outline: 2px solid rgba(89, 247, 180, 0.55);
-      outline-offset: 1px;
+    button:focus-visible {
+      outline: 3px solid rgba(92, 255, 177, 0.32);
+      outline-offset: 2px;
     }
 
     select option {
       color: #0a1525;
     }
 
-    .primary-btn {
-      border: none;
-      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
-      color: #032616;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.15s ease;
-    }
-
-    .primary-btn:hover {
-      transform: translateY(-1px);
-      filter: saturate(1.12);
-    }
-
-    /* Grade reutilizada para cards lado a lado */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 13px;
       margin-top: 8px;
     }
 
     .mini-card {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 6px;
+      background: rgba(255, 255, 255, 0.068);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 18px;
+      padding: 16px;
+      transition: 0.18s ease;
+    }
+
+    .mini-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(92, 255, 177, 0.34);
+      background: rgba(255, 255, 255, 0.09);
     }
 
     .mini-card h3 {
-      margin-bottom: 6px;
-      font-size: 1.02rem;
+      margin-bottom: 7px;
+      font-size: 1.05rem;
+    }
+
+    .mini-card h3 i {
+      color: var(--accent);
+      margin-right: 6px;
     }
 
     .muted {
       color: var(--text-muted);
-      font-size: 0.93rem;
+      font-size: 0.94rem;
     }
 
     .status {
-      margin-top: 8px;
+      margin-top: 10px;
       min-height: 1.2em;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .status.error {
@@ -418,23 +824,126 @@
     .empty-state {
       grid-column: 1 / -1;
       text-align: center;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px dashed rgba(255, 255, 255, 0.2);
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px dashed rgba(255, 255, 255, 0.24);
       color: var(--text-muted);
     }
 
+    /*
+      LISTA DE INFORMAÇÕES EXPANSÍVEIS
+      Cada bloco usa a tag <details>, que já abre/fecha sozinha no navegador.
+      Assim não precisamos criar JavaScript extra só para controlar a setinha.
+    */
     .info-list {
       display: grid;
       gap: 14px;
-      margin-top: 14px;
+      margin-top: 18px;
     }
 
+    /*
+      Card principal de cada informação.
+      O overflow escondido ajuda a manter o canto arredondado quando o texto grande aparece.
+    */
     .info-item {
-      padding: 12px;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      background: rgba(255, 255, 255, 0.055);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+
+    .info-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(89, 247, 180, 0.38);
+      background: rgba(255, 255, 255, 0.075);
+    }
+
+    /*
+      Cabeçalho clicável do card.
+      O summary funciona como botão: clicou, abre; clicou de novo, fecha.
+    */
+    .info-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px;
+      cursor: pointer;
+    }
+
+    .info-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .info-summary-text {
+      display: grid;
+      gap: 4px;
+    }
+
+    .info-summary strong {
+      font-size: 1rem;
+    }
+
+    .info-summary p {
+      margin: 0;
+    }
+
+    /*
+      Botão visual da setinha.
+      Ele gira quando o bloco está aberto, mostrando claramente que dá para fechar.
+    */
+    .info-arrow {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.04);
+      color: var(--accent);
+      background: rgba(89, 247, 180, 0.12);
+      border: 1px solid rgba(89, 247, 180, 0.22);
+      transition: transform 0.25s ease, background 0.2s ease;
+    }
+
+    .info-item[open] .info-arrow {
+      transform: rotate(180deg);
+      background: rgba(89, 247, 180, 0.2);
+    }
+
+    /*
+      Texto completo que aparece depois que o usuário abre o card.
+      Fica separado do resumo por uma linha sutil.
+    */
+    .info-expanded {
+      padding: 0 16px 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      animation: infoOpen 0.22s ease;
+    }
+
+    .info-expanded p {
+      margin-top: 12px;
+      color: var(--text-muted);
+    }
+
+    .info-expanded ul {
+      margin: 12px 0 0 18px;
+      color: var(--text-muted);
+      display: grid;
+      gap: 7px;
+    }
+
+    @keyframes infoOpen {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .logout-btn {
@@ -442,10 +951,28 @@
       background: transparent;
       color: #ffd5d5;
       border: 1px solid rgba(255, 132, 132, 0.55);
-      border-radius: 12px;
-      padding: 10px;
+      border-radius: 14px;
+      padding: 12px;
       width: 100%;
       cursor: pointer;
+      font-weight: 800;
+    }
+
+
+
+    /*
+      Botão pequeno para sair do perfil direto pela capa.
+      Ele deixa claro que o usuário pode encerrar a sessão atual sem apagar o perfil salvo.
+    */
+    .profile-logout-top {
+      border: 1px solid rgba(255, 132, 132, 0.55);
+      background: rgba(255, 107, 107, 0.12);
+      color: #ffd5d5;
+    }
+
+    .profile-logout-top:hover {
+      background: rgba(255, 107, 107, 0.22);
+      border-color: rgba(255, 132, 132, 0.85);
     }
 
     .login-panel input + input,
@@ -456,23 +983,845 @@
       margin-top: 10px;
     }
 
-    @media (max-width: 760px) {
-      .filters {
+
+
+    /*
+      ============================================================
+      6) PERFIL ESTILO REDE SOCIAL
+      ============================================================
+      Esta parte transforma a aba Perfil em algo parecido com uma rede social:
+      - capa no topo;
+      - foto de perfil circular;
+      - nome, @usuário e bio;
+      - estatísticas de impacto;
+      - conquistas e atividade recente;
+      - formulário para editar os dados localmente.
+    */
+    .profile-shell {
+      display: grid;
+      gap: 18px;
+    }
+
+    .profile-hero-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .profile-cover {
+      min-height: 230px;
+      padding: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background:
+        linear-gradient(135deg, rgba(92, 255, 177, 0.28), rgba(125, 211, 252, 0.18)),
+        url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=1600&q=80') center/cover;
+    }
+
+    .profile-cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(3, 10, 20, 0.08), rgba(3, 10, 20, 0.84));
+      pointer-events: none;
+    }
+
+    .profile-badge {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(3, 12, 22, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      backdrop-filter: blur(10px);
+    }
+
+    .profile-actions-top {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 10px;
+    }
+
+    .profile-body {
+      position: relative;
+      z-index: 2;
+      padding: 0 clamp(18px, 3vw, 30px) 28px;
+      margin-top: -62px;
+    }
+
+    .profile-main-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .avatar-wrap {
+      position: relative;
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      padding: 5px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.34);
+    }
+
+    .avatar-wrap img,
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: grid;
+      place-items: center;
+      background: #082033;
+      color: var(--accent);
+      font-size: 3rem;
+      border: 4px solid rgba(3, 12, 22, 0.95);
+    }
+
+    .avatar-edit-label {
+      position: absolute;
+      right: 4px;
+      bottom: 6px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+      color: #042315;
+      border: 3px solid #071625;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.28);
+    }
+
+    .avatar-edit-label input {
+      display: none;
+    }
+
+    .profile-name-area h2 {
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      margin-bottom: 2px;
+    }
+
+    .profile-username {
+      color: var(--accent);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .profile-bio {
+      color: var(--text-muted);
+      max-width: 68ch;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .profile-stat {
+      padding: 15px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      text-align: center;
+    }
+
+    .profile-stat strong {
+      display: block;
+      color: var(--accent);
+      font-size: 1.45rem;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .profile-stat span {
+      color: var(--text-muted);
+      font-size: 0.84rem;
+    }
+
+    .profile-content-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .profile-panel {
+      padding: clamp(16px, 3vw, 22px);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+    }
+
+    .profile-panel h3 {
+      margin-bottom: 12px;
+      font-size: 1.08rem;
+    }
+
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .achievement-card {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .achievement-card i {
+      font-size: 1.35rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .achievement-card strong {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .timeline-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(92, 255, 177, 0.13);
+      color: var(--accent);
+    }
+
+    .edit-profile-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .edit-profile-form textarea {
+      width: 100%;
+      min-height: 96px;
+      resize: vertical;
+      padding: 12px 13px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      font: inherit;
+    }
+
+    .edit-profile-form textarea::placeholder {
+      color: #bdd1de;
+    }
+
+    .edit-profile-form textarea:focus {
+      outline: 3px solid rgba(92, 255, 177, 0.32);
+      outline-offset: 2px;
+    }
+
+
+
+    /*
+      ============================================================
+      NOVA HOME: TEXTO + VÍDEO + CADASTRO
+      ============================================================
+      Estas classes deixam a página inicial com aparência de apresentação profissional.
+      A estrutura foi pensada para o usuário entender o projeto antes de se cadastrar.
+    */
+    .landing-shell {
+      display: grid;
+      gap: 22px;
+    }
+
+    .dashboard-shell {
+      display: grid;
+      gap: 20px;
+    }
+
+    .dashboard-hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+      align-items: stretch;
+      padding: clamp(22px, 4vw, 38px);
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at top right, rgba(92,255,177,0.24), transparent 35%),
+        linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.055));
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .dashboard-hero h1 {
+      font-size: clamp(2rem, 5vw, 4.4rem);
+      line-height: 0.95;
+      margin: 10px 0 12px;
+      max-width: 780px;
+    }
+
+    .dashboard-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .ghost-btn {
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .dashboard-panel {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .next-step {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(92,255,177,0.11);
+      border: 1px solid rgba(92,255,177,0.2);
+    }
+
+
+    .card-soft,
+    .video-showcase,
+    .join-callout,
+    .signup-panel,
+    .store-hero,
+    .product-details-panel {
+      background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.055));
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .card-soft {
+      padding: clamp(22px, 4vw, 38px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-soft::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      top: -90px;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(92,255,177,0.28), transparent 68%);
+    }
+
+    .intro-highlights {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .intro-highlights div {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .intro-highlights i {
+      color: var(--accent);
+      font-size: 1.35rem;
+      margin-bottom: 10px;
+    }
+
+    .intro-highlights strong,
+    .intro-highlights span {
+      display: block;
+    }
+
+    .intro-highlights span {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .video-showcase {
+      padding: clamp(16px, 3vw, 24px);
+    }
+
+    .video-showcase-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .video-kicker {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.76rem;
+      margin-bottom: 6px;
+    }
+
+    .video-frame-big {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      background: #000;
+      aspect-ratio: 16 / 9;
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.38);
+    }
+
+    .video-frame-big iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .video-summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .video-summary-row div {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .video-summary-row strong,
+    .video-summary-row span {
+      display: block;
+    }
+
+    .video-summary-row span {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-top: 3px;
+    }
+
+    .join-callout {
+      padding: clamp(22px, 4vw, 34px);
+      background:
+        radial-gradient(circle at top right, rgba(92,255,177,0.22), transparent 34%),
+        linear-gradient(145deg, rgba(9, 42, 54, 0.92), rgba(5, 18, 31, 0.9));
+      text-align: center;
+    }
+
+    .join-callout h2 {
+      font-size: clamp(1.8rem, 5vw, 3.8rem);
+      margin: 8px 0 10px;
+    }
+
+    .join-callout p {
+      max-width: 760px;
+      margin: 0 auto;
+      color: var(--text-muted);
+    }
+
+    .signup-panel {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 18px;
+      padding: clamp(18px, 3vw, 28px);
+      align-items: center;
+    }
+
+    .signup-copy h2 i {
+      color: var(--accent);
+    }
+
+    .signup-form {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .signup-form button,
+    .signup-form .status {
+      grid-column: 1 / -1;
+    }
+
+    /*
+      ============================================================
+      NOVA LOJA: VITRINE COM PRODUTOS
+      ============================================================
+      Cada produto é um card com área visual, tag, descrição, preço e botão de detalhes.
+    */
+    .store-hero {
+      padding: clamp(22px, 4vw, 36px);
+      margin-bottom: 18px;
+      background:
+        radial-gradient(circle at top left, rgba(125,211,252,0.2), transparent 30%),
+        linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+    }
+
+    .store-hero h2 {
+      font-size: clamp(1.6rem, 4vw, 3rem);
+      margin: 8px 0;
+    }
+
+    .store-hero p {
+      max-width: 760px;
+      color: var(--text-muted);
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .product-card {
+      overflow: hidden;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 18px 45px rgba(0,0,0,0.24);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(92,255,177,0.45);
+    }
+
+    .product-image {
+      min-height: 150px;
+      display: grid;
+      place-items: center;
+      font-size: 3rem;
+      color: #052014;
+    }
+
+    .product-image.coupon { background: linear-gradient(135deg, #5cffb1, #7dd3fc); }
+    .product-image.bottle { background: linear-gradient(135deg, #bbf7d0, #22c55e); }
+    .product-image.tree { background: linear-gradient(135deg, #86efac, #14b8a6); }
+    .product-image.badge { background: linear-gradient(135deg, #fde68a, #5cffb1); }
+
+    .product-body {
+      padding: 16px;
+    }
+
+    .product-tag {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(92,255,177,0.14);
+      color: var(--accent);
+      border: 1px solid rgba(92,255,177,0.24);
+      font-size: 0.74rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .product-footer strong {
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .product-footer button {
+      border: 0;
+      border-radius: 12px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 800;
+      color: #052014;
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+    }
+
+    .product-details-panel {
+      margin-top: 18px;
+      padding: 20px;
+      min-height: 120px;
+    }
+
+    .details-empty,
+    .details-content {
+      display: grid;
+      gap: 8px;
+    }
+
+    .details-empty {
+      place-items: center;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .details-empty i {
+      color: var(--accent);
+      font-size: 1.6rem;
+    }
+
+    .details-content h3 i {
+      color: var(--accent);
+      margin-right: 8px;
+    }
+
+    .details-content ul {
+      display: grid;
+      gap: 8px;
+      margin: 10px 0 0 18px;
+      color: var(--text-muted);
+    }
+
+    /*
+      MODAL DE PRODUTO
+      Ao clicar em “Ver mais”, abrimos uma janela maior no centro.
+      O fundo fica desfocado para dar foco total ao produto.
+    */
+    .product-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: rgba(0,0,0,0.54);
+      backdrop-filter: blur(9px);
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.22s ease;
+    }
+
+    .product-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .product-modal-card {
+      width: min(760px, 100%);
+      max-height: min(86vh, 760px);
+      overflow-y: auto;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at top right, rgba(92,255,177,0.22), transparent 34%),
+        linear-gradient(145deg, rgba(8, 24, 38, 0.98), rgba(4, 13, 25, 0.98));
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 35px 100px rgba(0,0,0,0.55);
+      transform: translateY(12px) scale(0.98);
+      transition: 0.22s ease;
+    }
+
+    .product-modal.active .product-modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-close {
+      position: sticky;
+      top: 14px;
+      float: right;
+      margin: 14px 14px 0 0;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .modal-product-visual {
+      min-height: 210px;
+      display: grid;
+      place-items: center;
+      font-size: 4.5rem;
+      color: #052014;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .modal-product-body {
+      padding: clamp(20px, 4vw, 34px);
+      display: grid;
+      gap: 14px;
+    }
+
+    .modal-product-body h2 {
+      font-size: clamp(1.6rem, 4vw, 2.8rem);
+      margin: 0;
+    }
+
+    .modal-benefits {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      list-style: none;
+      margin-top: 8px;
+    }
+
+    .modal-benefits li {
+      padding: 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-muted);
+    }
+
+    .modal-benefits li::before {
+      content: "✓";
+      color: var(--accent);
+      font-weight: 900;
+      margin-right: 6px;
+    }
+
+
+    @media (max-width: 980px) {
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .signup-panel,
+      .intro-highlights,
+      .video-summary-row,
+      .dashboard-hero,
+      .modal-benefits {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .product-grid,
+      .signup-form {
         grid-template-columns: 1fr;
       }
 
+      .video-showcase-header {
+        flex-direction: column;
+      }
+    }
+    /*
+      ============================================================
+      7) RESPONSIVIDADE
+      ============================================================
+      Em telas menores, as colunas viram uma coluna só.
+      Isso evita que o vídeo e os cards fiquem apertados no celular.
+    */
+    @media (max-width: 900px) {
+      .presentation-hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        order: 1;
+      }
+
+      .video-stage {
+        order: 2;
+      }
+
+      .video-caption,
+      .hero-proof,
+      .profile-stats,
+      .profile-content-grid,
+      .achievement-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      main {
+        padding: 18px 14px 34px;
+      }
+
+      .filters,
       .grid,
       .kpi {
         grid-template-columns: 1fr;
       }
 
-      .login-panel {
-        padding: 18px;
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-actions button {
+        width: 100%;
+      }
+
+      .profile-main-row {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .profile-actions-top {
+        display: none;
+      }
+
+      .avatar-wrap {
+        width: 118px;
+        height: 118px;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Cabeçalho fixo: mostra a marca e o botão do menu quando o usuário está logado. -->
   <header>
     <div class="brand"><i class="fa-solid fa-recycle" aria-hidden="true"></i> EcoDescarte</div>
     <button class="menu-btn app-only" id="menuBtn" onclick="toggleMenu()" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu">
@@ -480,8 +1829,10 @@
     </button>
   </header>
 
+  <!-- Fundo escuro que aparece quando o menu lateral abre. Clicar nele fecha o menu. -->
   <div class="backdrop app-only" id="backdrop" onclick="closeMenu()"></div>
 
+  <!-- Menu lateral: cada botão chama showPage() para trocar a tela visível. -->
   <aside class="sidebar app-only" id="sidebar" aria-label="Menu lateral">
     <p class="menu-title">Navegação</p>
     <button class="nav-btn" data-page="home" onclick="showPage('home')"><i class="fa-solid fa-house"></i> Início</button>
@@ -489,14 +1840,16 @@
     <button class="nav-btn" data-page="shop" onclick="showPage('shop')"><i class="fa-solid fa-store"></i> Loja</button>
     <button class="nav-btn" data-page="info" onclick="showPage('info')"><i class="fa-solid fa-circle-info"></i> Info</button>
     <button class="nav-btn" data-page="profile" onclick="showPage('profile')"><i class="fa-solid fa-user"></i> Perfil</button>
+    <button class="nav-btn" data-page="login" onclick="showPage('login')"><i class="fa-solid fa-right-to-bracket"></i> Login opcional</button>
   </aside>
 
   <main>
-    <!-- ==========================================================
-         2) TELA PRINCIPAL (LOGIN)
-         É a primeira tela mostrada para o usuário.
-         Só após login as páginas do app são liberadas.
-    ========================================================== -->
+    <!--
+      LOGIN OPCIONAL
+      Esta tela NÃO é mais a tela principal.
+      Ela fica disponível apenas se o usuário quiser simular uma entrada no sistema.
+      A primeira tela agora é a HOME, onde o vídeo aparece como apresentação principal.
+    -->
     <section id="login" class="page">
       <div class="login-screen">
         <div class="login-bg" aria-hidden="true">
@@ -508,7 +1861,7 @@
         <div class="login-content">
           <div class="login-panel">
             <h2><i class="fa-solid fa-shield-heart"></i> Bem-vindo ao EcoDescarte</h2>
-            <p class="subtitle">Faça login para acompanhar pontos, encontrar locais de coleta e ajudar o planeta com ações simples.</p>
+            <p class="subtitle">Login opcional para salvar uma sessão local. A apresentação principal do site agora fica na página inicial, com o vídeo em destaque.</p>
 
             <input id="loginEmail" type="email" placeholder="Seu email" autocomplete="email" />
             <input id="loginPassword" type="password" placeholder="Sua senha" autocomplete="current-password" />
@@ -519,32 +1872,151 @@
       </div>
     </section>
 
-    <!-- Página inicial (aparece somente após autenticação) -->
+    <!--
+      HOME / APRESENTAÇÃO
+      Esta é a primeira área que o usuário vê ao abrir o site.
+      Ela funciona como uma landing page:
+      1) explica o projeto;
+      2) mostra o vídeo como peça principal;
+      3) faz a pergunta de chamada;
+      4) oferece uma área de cadastro logo abaixo.
+    -->
     <section id="home" class="page active">
-      <div class="card">
-        <h2><i class="fa-solid fa-leaf" aria-hidden="true"></i> Página inicial</h2>
-        <p class="subtitle">Aprenda sobre descarte correto e acompanhe o impacto das suas ações.</p>
+      <!--
+        DASHBOARD PARA USUÁRIO LOGADO
+        Esta parte só aparece quando o usuário já fez login/cadastro.
+        Assim a home não fica repetindo a explicação do projeto para quem já entrou.
+      -->
+      <div class="dashboard-shell logged-only">
+        <div class="dashboard-hero">
+          <div>
+            <span class="eyebrow"><i class="fa-solid fa-gauge-high"></i> Dashboard</span>
+            <h1>Bem-vindo de volta ao EcoDescarte.</h1>
+            <p class="hero-text">
+              Acompanhe seu impacto, encontre pontos de coleta e troque seus pontos por recompensas sustentáveis.
+            </p>
+            <div class="dashboard-actions">
+              <button class="primary-btn" onclick="showPage('locations')"><i class="fa-solid fa-location-dot"></i> Encontrar coleta</button>
+              <button class="ghost-btn" onclick="showPage('shop')"><i class="fa-solid fa-store"></i> Ir para loja</button>
+            </div>
+          </div>
+          <div class="dashboard-panel">
+            <div class="kpi" aria-label="Resumo de impacto">
+              <div class="kpi-item"><strong id="kpiPoints">0</strong>Pontos</div>
+              <div class="kpi-item"><strong id="kpiDrops">0</strong>Descartes</div>
+              <div class="kpi-item"><strong id="kpiCO2">0kg</strong>CO₂ evitado</div>
+            </div>
+            <div class="next-step">
+              <strong>Próximo passo recomendado</strong>
+              <p class="muted">Faça um novo descarte em um ponto de coleta e desbloqueie mais recompensas na vitrine.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div class="video-container">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/lM02vNMRRB0?rel=0&modestbranding=1&playsinline=1"
-            title="Vídeo educativo sobre descarte correto"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-            loading="lazy">
-          </iframe>
+      <!--
+        LANDING PAGE PARA VISITANTES
+        Esta parte aparece somente para quem ainda não possui sessão salva.
+      -->
+      <div class="landing-shell guest-only">
+        <div class="project-intro card-soft">
+          <span class="eyebrow"><i class="fa-solid fa-seedling"></i> Apresentação do projeto</span>
+          <h1 class="hero-title">EcoDescarte: tecnologia para transformar descarte em impacto positivo.</h1>
+          <p class="hero-text">
+            O EcoDescarte é uma plataforma criada para orientar pessoas no descarte correto de eletrônicos,
+            conectar usuários a pontos de coleta e recompensar atitudes sustentáveis. A proposta é simples:
+            reduzir o lixo eletrônico descartado de forma incorreta e tornar a reciclagem mais acessível,
+            educativa e motivadora.
+          </p>
+
+          <div class="intro-highlights" aria-label="Destaques do projeto">
+            <div><i class="fa-solid fa-location-dot"></i><strong>Pontos de coleta</strong><span>Ajuda o usuário a encontrar onde descartar.</span></div>
+            <div><i class="fa-solid fa-gift"></i><strong>Recompensas</strong><span>Transforma ações sustentáveis em benefícios.</span></div>
+            <div><i class="fa-solid fa-chart-line"></i><strong>Impacto</strong><span>Mostra pontos, descartes e CO₂ evitado.</span></div>
+          </div>
         </div>
 
-        <div class="kpi" aria-label="Resumo de impacto">
-          <div class="kpi-item"><strong id="kpiPoints">0</strong>Pontos</div>
-          <div class="kpi-item"><strong id="kpiDrops">0</strong>Descartes</div>
-          <div class="kpi-item"><strong id="kpiCO2">0kg</strong>CO₂ evitado</div>
+        <div class="video-showcase">
+          <div class="video-showcase-header">
+            <div>
+              <span class="video-kicker"><i class="fa-solid fa-circle-play"></i> Vídeo principal</span>
+              <h2>Entenda a ideia do EcoDescarte</h2>
+            </div>
+            <span class="live-pill"><span class="live-dot"></span> apresentação</span>
+          </div>
+
+          <div class="video-frame-big">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/lM02vNMRRB0?rel=0&modestbranding=1&playsinline=1"
+              title="Vídeo educativo sobre descarte correto"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+
+          <div class="video-summary-row">
+            <div><strong>Problema</strong><span>Lixo eletrônico no lixo comum.</span></div>
+            <div><strong>Solução</strong><span>Educação, coleta e recompensa.</span></div>
+            <div><strong>Resultado</strong><span>Mais reciclagem e menos contaminação.</span></div>
+          </div>
+        </div>
+
+        <div class="join-callout">
+          <div>
+            <span class="eyebrow"><i class="fa-solid fa-hand-holding-heart"></i> Chamada para ação</span>
+            <h2>Vamos fazer parte da mudança?</h2>
+            <p>
+              Cadastre-se para criar seu perfil sustentável, acompanhar suas ações e participar da comunidade
+              que transforma pequenos descartes em grandes impactos.
+            </p>
+          </div>
+        </div>
+
+        <div class="signup-panel" id="cadastro">
+          <div class="signup-copy">
+            <h2><i class="fa-solid fa-user-plus"></i> Criar cadastro</h2>
+            <p class="subtitle">
+              Crie sua conta rapidamente com email e senha. Depois, personalize nome, foto, @usuário e bio na aba Perfil.
+            </p>
+          </div>
+
+          <div class="signup-form">
+            <!--
+              CADASTRO DA HOME
+              Aqui ficam apenas os dados mínimos para criar uma conta:
+              email, senha e confirmação de senha.
+
+              Nome público, @usuário, foto e bio ficam somente na aba Perfil,
+              porque são informações de personalização da rede social.
+            -->
+            <input id="signupEmail" type="email" placeholder="Email" autocomplete="email" />
+            <input id="signupPassword" type="password" placeholder="Senha" autocomplete="new-password" />
+            <input id="signupConfirmPassword" type="password" placeholder="Confirmar senha" autocomplete="new-password" />
+            <button class="primary-btn" onclick="registerUser()"><i class="fa-solid fa-leaf"></i> Fazer parte da mudança</button>
+            <p id="signupStatus" class="status" role="status"></p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><i class="fa-solid fa-chart-simple" aria-hidden="true"></i> Resumo de impacto</h2>
+          <p class="subtitle">Esses números simulam o progresso do usuário dentro do app.</p>
+
+          <div class="kpi" aria-label="Resumo demonstrativo de impacto">
+            <div class="kpi-item"><strong>30</strong>Pontos iniciais</div>
+            <div class="kpi-item"><strong>1</strong>Descarte exemplo</div>
+            <div class="kpi-item"><strong>2kg</strong>CO₂ evitado</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Página de pontos de coleta com filtros -->
+    <!--
+      PONTOS DE COLETA
+      O usuário pode buscar por texto e filtrar por categoria.
+      Os dados estão em um array JavaScript chamado locations.
+    -->
     <section id="locations" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Pontos de coleta</h2>
@@ -565,103 +2037,340 @@
       </div>
     </section>
 
-    <!-- Página de loja/recompensas -->
+    <!--
+      LOJA / VITRINE
+      A loja agora parece uma vitrine real: cada produto tem imagem/ícone, preço em pontos,
+      descrição curta e botão para abrir mais detalhes.
+    -->
     <section id="shop" class="page app-only">
-      <div class="card">
-        <h2><i class="fa-solid fa-store" aria-hidden="true"></i> Loja</h2>
-        <p class="subtitle">Use seus pontos em benefícios sustentáveis.</p>
-
-        <div class="grid">
-          <div class="mini-card">
-            <h3><i class="fa-solid fa-ticket" aria-hidden="true"></i> Cupom</h3>
-            <p class="muted">Troque 120 pontos por 10% OFF em lojas parceiras.</p>
-          </div>
-
-          <div class="mini-card">
-            <h3><i class="fa-solid fa-gift" aria-hidden="true"></i> Brinde</h3>
-            <p class="muted">Resgate itens ecológicos com 250 pontos.</p>
-          </div>
-        </div>
+      <div class="store-hero">
+        <span class="eyebrow"><i class="fa-solid fa-store"></i> Vitrine sustentável</span>
+        <h2>Troque seus pontos por recompensas ecológicas</h2>
+        <p>
+          A loja incentiva o usuário a continuar descartando corretamente. Quanto mais ações sustentáveis,
+          mais benefícios ele pode desbloquear.
+        </p>
       </div>
+
+      <div class="product-grid">
+        <article class="product-card">
+          <div class="product-image coupon"><i class="fa-solid fa-ticket"></i></div>
+          <div class="product-body">
+            <span class="product-tag">Mais popular</span>
+            <h3>Cupom sustentável</h3>
+            <p class="muted">10% OFF em lojas parceiras de produtos ecológicos.</p>
+            <div class="product-footer"><strong>120 pontos</strong><button onclick="showProductDetails('cupom')">Ver mais</button></div>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-image bottle"><i class="fa-solid fa-bottle-water"></i></div>
+          <div class="product-body">
+            <span class="product-tag">Reutilizável</span>
+            <h3>Garrafa eco</h3>
+            <p class="muted">Garrafa reutilizável para reduzir consumo de plástico.</p>
+            <div class="product-footer"><strong>250 pontos</strong><button onclick="showProductDetails('garrafa')">Ver mais</button></div>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-image tree"><i class="fa-solid fa-tree"></i></div>
+          <div class="product-body">
+            <span class="product-tag">Impacto</span>
+            <h3>Plantio simbólico</h3>
+            <p class="muted">Converta pontos em uma ação ambiental simbólica.</p>
+            <div class="product-footer"><strong>300 pontos</strong><button onclick="showProductDetails('plantio')">Ver mais</button></div>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-image badge"><i class="fa-solid fa-medal"></i></div>
+          <div class="product-body">
+            <span class="product-tag">Perfil</span>
+            <h3>Selo verde</h3>
+            <p class="muted">Um selo especial para destacar seu perfil sustentável.</p>
+            <div class="product-footer"><strong>90 pontos</strong><button onclick="showProductDetails('selo')">Ver mais</button></div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Os detalhes agora abrem em um modal grande, criado no final do HTML. -->
     </section>
 
-    <!-- Página informativa/educativa -->
+    <!-- Página educativa com dicas. Serve como apoio ao vídeo de apresentação. -->
     <section id="info" class="page app-only">
       <div class="card">
         <h2><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Informações importantes</h2>
-        <p class="subtitle">Descartar eletrônicos corretamente evita contaminação do solo e da água, reduz emissões e reaproveita materiais valiosos.</p>
+        <p class="subtitle">Aqui o usuário vê um resumo rápido e, se quiser entender melhor, pode abrir cada bloco pela setinha.</p>
 
+        <!--
+          ÁREA DE TEXTO EXPANSÍVEL
+          A tag <details> cria uma aba que abre e fecha sem JavaScript.
+          A tag <summary> é a parte sempre visível, funcionando como o botão do card.
+        -->
         <div class="info-list">
-          <div class="info-item">
-            <strong>1) Separe por tipo de resíduo</strong>
-            <p class="muted">Guarde baterias, cabos, celulares e notebooks em recipientes separados para facilitar a reciclagem correta.</p>
-          </div>
-          <div class="info-item">
-            <strong>2) Não jogue no lixo comum</strong>
-            <p class="muted">Componentes eletrônicos têm metais e substâncias tóxicas. O descarte incorreto pode contaminar o meio ambiente por anos.</p>
-          </div>
-          <div class="info-item">
-            <strong>3) Use pontos de coleta confiáveis</strong>
-            <p class="muted">Prefira locais cadastrados e, quando possível, remova dados pessoais dos dispositivos antes da entrega.</p>
-          </div>
-          <div class="info-item">
-            <strong>4) Impacto positivo acumulado</strong>
-            <p class="muted">Cada descarte correto contribui para economia circular, reduz extração de matéria-prima e fortalece hábitos sustentáveis.</p>
-          </div>
+          <details class="info-item">
+            <summary class="info-summary">
+              <span class="info-summary-text">
+                <strong>1) Separe por tipo de resíduo</strong>
+                <p class="muted">Organize eletrônicos por categoria antes de descartar.</p>
+              </span>
+              <span class="info-arrow" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="info-expanded">
+              <p>Separar os materiais facilita a triagem e aumenta a chance de reaproveitamento. Baterias, cabos, celulares, carregadores e notebooks podem ter processos de reciclagem diferentes.</p>
+              <ul>
+                <li>Guarde baterias em um recipiente separado.</li>
+                <li>Evite misturar eletrônicos com lixo orgânico.</li>
+                <li>Separe acessórios pequenos, como cabos e fontes.</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="info-item">
+            <summary class="info-summary">
+              <span class="info-summary-text">
+                <strong>2) Não jogue no lixo comum</strong>
+                <p class="muted">Eletrônicos podem contaminar solo e água.</p>
+              </span>
+              <span class="info-arrow" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="info-expanded">
+              <p>Produtos eletrônicos podem conter metais, placas, baterias e componentes químicos que não devem ir para aterros comuns. Quando descartados incorretamente, esses materiais podem prejudicar o meio ambiente e desperdiçar recursos reutilizáveis.</p>
+              <ul>
+                <li>Nunca descarte pilhas e baterias soltas no lixo comum.</li>
+                <li>Evite deixar aparelhos quebrados expostos à chuva.</li>
+                <li>Leve o material para um ponto de coleta adequado.</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="info-item">
+            <summary class="info-summary">
+              <span class="info-summary-text">
+                <strong>3) Use pontos de coleta confiáveis</strong>
+                <p class="muted">Escolha locais cadastrados para descarte seguro.</p>
+              </span>
+              <span class="info-arrow" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="info-expanded">
+              <p>Um ponto de coleta confiável encaminha os resíduos para empresas, cooperativas ou processos corretos de reciclagem. Isso evita que o material seja abandonado ou tratado de forma inadequada.</p>
+              <ul>
+                <li>Confira o horário de funcionamento antes de ir.</li>
+                <li>Remova dados pessoais de celulares e notebooks.</li>
+                <li>Prefira locais que informam o destino dos resíduos.</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="info-item">
+            <summary class="info-summary">
+              <span class="info-summary-text">
+                <strong>4) Impacto positivo acumulado</strong>
+                <p class="muted">Pequenas ações geram resultado com o tempo.</p>
+              </span>
+              <span class="info-arrow" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="info-expanded">
+              <p>Cada descarte correto ajuda a reduzir desperdício, economizar matéria-prima e fortalecer a economia circular. O objetivo do EcoDescarte é transformar esse hábito em algo simples, recompensador e visível para o usuário.</p>
+              <ul>
+                <li>Mais descarte correto significa menos lixo eletrônico parado.</li>
+                <li>Materiais reaproveitados reduzem extração de novos recursos.</li>
+                <li>O sistema de pontos incentiva a continuidade da ação.</li>
+              </ul>
+            </div>
+          </details>
         </div>
       </div>
     </section>
 
-    <!-- Página de perfil e logout -->
+    <!--
+      PERFIL ESTILO REDE SOCIAL
+      Aqui o usuário não vê apenas campos soltos de formulário.
+      Ele vê uma página de perfil pronta, parecida com rede social:
+      foto, nome de usuário, bio, estatísticas, conquistas e atividades.
+    -->
     <section id="profile" class="page app-only">
-      <div class="card">
-        <h2><i class="fa-solid fa-user" aria-hidden="true"></i> Perfil</h2>
-        <p class="subtitle">Complete seus dados para salvar seu progresso localmente.</p>
+      <div class="profile-shell">
+        <article class="profile-hero-card">
+          <div class="profile-cover">
+            <span class="profile-badge"><i class="fa-solid fa-seedling"></i> Eco perfil</span>
+            <div class="profile-actions-top">
+              <!--
+                Botão para editar: apenas leva o foco para o formulário de personalização.
+              -->
+              <button class="secondary-btn" onclick="document.getElementById('profileUsername').focus()">
+                <i class="fa-solid fa-pen"></i> Editar perfil
+              </button>
 
-        <input id="name" placeholder="Nome" autocomplete="name" />
-        <input id="email" type="email" placeholder="Email" autocomplete="email" />
+              <!--
+                Botão para sair do perfil atual.
+                Ele remove somente a sessão/login, mantendo nome, foto e bio salvos no navegador.
+              -->
+              <button class="secondary-btn profile-logout-top" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair
+              </button>
+            </div>
+          </div>
 
-        <button class="primary-btn" onclick="saveProfile()">Salvar</button>
-        <button class="logout-btn" onclick="logout()">Sair da conta</button>
-        <p id="status" class="status" role="status"></p>
+          <div class="profile-body">
+            <div class="profile-main-row">
+              <div class="avatar-wrap" aria-label="Foto de perfil">
+                <img id="profileAvatarPreview" alt="Foto de perfil do usuário" />
+                <div id="profileAvatarFallback" class="avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+
+                <!--
+                  Este input aceita imagem do computador/celular.
+                  Ele fica escondido dentro do botão redondo de câmera.
+                -->
+                <label class="avatar-edit-label" title="Trocar foto de perfil">
+                  <i class="fa-solid fa-camera"></i>
+                  <input id="profileAvatarInput" type="file" accept="image/*" onchange="handleAvatarUpload(event)" />
+                </label>
+              </div>
+
+              <div class="profile-name-area">
+                <h2 id="displayName">Eco Usuário</h2>
+                <p class="profile-username" id="displayUsername">@ecodescarte</p>
+                <p class="profile-bio" id="displayBio">Transformando pequenos descartes em grandes impactos para o planeta.</p>
+              </div>
+            </div>
+
+            <div class="profile-stats" aria-label="Estatísticas do perfil">
+              <div class="profile-stat"><strong id="profilePosts">12</strong><span>ações</span></div>
+              <div class="profile-stat"><strong id="profilePoints">180</strong><span>pontos</span></div>
+              <div class="profile-stat"><strong id="profileDrops">6</strong><span>descartes</span></div>
+              <div class="profile-stat"><strong id="profileCO2">12kg</strong><span>CO₂ evitado</span></div>
+            </div>
+          </div>
+        </article>
+
+        <div class="profile-content-grid">
+          <div class="profile-panel">
+            <h3><i class="fa-solid fa-trophy"></i> Conquistas</h3>
+            <div class="achievement-grid">
+              <div class="achievement-card">
+                <i class="fa-solid fa-leaf"></i>
+                <strong>Primeiro descarte</strong>
+                <p class="muted">Começou sua jornada sustentável.</p>
+              </div>
+              <div class="achievement-card">
+                <i class="fa-solid fa-bolt"></i>
+                <strong>Eletrônico salvo</strong>
+                <p class="muted">Evitiou descarte incorreto.</p>
+              </div>
+              <div class="achievement-card">
+                <i class="fa-solid fa-recycle"></i>
+                <strong>Reciclador ativo</strong>
+                <p class="muted">Mantém hábitos ecológicos.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-panel">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Atividade recente</h3>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                <div>
+                  <strong>Celular descartado corretamente</strong>
+                  <p class="muted">+30 pontos no EcoPonto Central.</p>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-icon"><i class="fa-solid fa-battery-half"></i></div>
+                <div>
+                  <strong>Baterias separadas</strong>
+                  <p class="muted">Material enviado para coleta especializada.</p>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-icon"><i class="fa-solid fa-store"></i></div>
+                <div>
+                  <strong>Cupom desbloqueado</strong>
+                  <p class="muted">Recompensa disponível na loja sustentável.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-panel">
+          <h3><i class="fa-solid fa-user-pen"></i> Personalizar perfil</h3>
+          <p class="subtitle">Esses dados ficam salvos apenas no navegador, usando localStorage.</p>
+
+          <div class="edit-profile-form">
+            <input id="profileName" placeholder="Nome público, ex: João Pedro" autocomplete="name" />
+            <input id="profileUsername" placeholder="Nome de usuário, ex: joao.eco" autocomplete="off" />
+            <textarea id="profileBio" placeholder="Bio curta, ex: reciclando eletrônicos e ajudando o planeta"></textarea>
+            <button class="primary-btn" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk"></i> Salvar perfil</button>
+            <!--
+              Esta opção encerra o perfil conectado no momento.
+              O visitante volta a ver a apresentação/cadastro na tela inicial.
+            -->
+            <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair deste perfil</button>
+            <p id="status" class="status" role="status"></p>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
+
+
+  <!--
+    MODAL DA LOJA
+    Fica fora das páginas para conseguir cobrir a tela inteira.
+    O conteúdo interno é preenchido pelo JavaScript quando o usuário clica em "Ver mais".
+  -->
+  <div class="product-modal" id="productModal" onclick="closeProductDetails(event)" aria-hidden="true">
+    <div class="product-modal-card" role="dialog" aria-modal="true" aria-labelledby="modalProductTitle">
+      <button class="modal-close" onclick="closeProductDetails()" aria-label="Fechar detalhes do produto">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div id="modalProductContent"></div>
+    </div>
+  </div>
+
   <script>
     /*
-      ==========================================================
-      3) LÓGICA JAVASCRIPT DO APP
-      Organização geral:
-      - Controle de menu e navegação entre páginas
-      - Busca e renderização de pontos de coleta
-      - Perfil e validação de dados
-      - Sessão de login/logout
-      ==========================================================
+      ============================================================
+      7) JAVASCRIPT DO SITE
+      ============================================================
+      O JavaScript é responsável por:
+      - abrir e fechar o menu lateral;
+      - trocar as páginas internas;
+      - fazer login/logout demonstrativo;
+      - salvar perfil no localStorage;
+      - filtrar pontos de coleta;
+      - atualizar os números de impacto.
     */
+
+    // Pegamos elementos do HTML pelo id para controlar com JavaScript.
     const sidebar = document.getElementById("sidebar");
     const backdrop = document.getElementById("backdrop");
     const menuBtn = document.getElementById("menuBtn");
 
-    // Abre/fecha o menu lateral e sincroniza acessibilidade (aria-expanded)
+    // Abre ou fecha o menu lateral e atualiza o aria-expanded para acessibilidade.
     function toggleMenu() {
       const isActive = sidebar.classList.toggle("active");
       backdrop.classList.toggle("active", isActive);
       menuBtn.setAttribute("aria-expanded", String(isActive));
     }
 
-    // Fecha o menu lateral explicitamente
+    // Fecha o menu. É chamado quando o usuário clica fora ou aperta Escape.
     function closeMenu() {
       sidebar.classList.remove("active");
       backdrop.classList.remove("active");
       menuBtn.setAttribute("aria-expanded", "false");
     }
 
-    // Mostra uma página específica e oculta as demais
+    // Troca a página exibida. Remove active de todas e adiciona active apenas na escolhida.
     function showPage(id) {
       document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
       document.getElementById(id).classList.add("active");
 
+      // Também marca no menu qual página está ativa.
       document.querySelectorAll(".nav-btn").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.page === id);
       });
@@ -670,7 +2379,8 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Base de dados local (mock) de pontos de coleta
+    // Banco de dados local demonstrativo dos pontos de coleta.
+    // Em um projeto real, essas informações poderiam vir de uma API ou banco de dados.
     const locations = [
       { name: "EcoPonto Central", type: "celular", bairro: "Centro", horario: "08h às 18h" },
       { name: "Tech Verde", type: "notebook", bairro: "Jardins", horario: "09h às 19h" },
@@ -678,13 +2388,13 @@
       { name: "Ponto Eletrônico Norte", type: "celular", bairro: "Zona Norte", horario: "10h às 20h" }
     ];
 
-    // Cria o card visual de um ponto de coleta usando DOM seguro
+    // Cria o HTML de cada ponto de coleta de forma segura usando createElement.
     function renderLocationCard(location) {
       const card = document.createElement("div");
       card.className = "mini-card";
 
       const title = document.createElement("h3");
-      title.textContent = location.name;
+      title.innerHTML = `<i class="fa-solid fa-map-pin"></i>${location.name}`;
 
       const type = document.createElement("p");
       type.className = "muted";
@@ -702,7 +2412,7 @@
       return card;
     }
 
-    // Filtra locations por texto e categoria, depois renderiza os resultados
+    // Filtra os pontos de coleta pelo texto digitado e pela categoria selecionada.
     function searchLocations() {
       const searchValue = document.getElementById("search").value.trim().toLowerCase();
       const category = document.getElementById("category").value;
@@ -729,7 +2439,7 @@
       });
     }
 
-    // Exibe mensagens de status (sucesso/erro) em áreas específicas da UI
+    // Mostra mensagens de erro ou sucesso em campos como login e perfil.
     function setStatus(message, variant, targetId = "status") {
       const status = document.getElementById(targetId);
       status.textContent = message;
@@ -737,76 +2447,283 @@
       status.classList.add(variant);
     }
 
-    // Validação simples de formato de email
+    // Validação simples de email. Ela apenas verifica se existe texto antes/depois do @ e um ponto.
     function isValidEmail(email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    // Salva dados do perfil no localStorage com validações básicas
+    // Gera um @usuário seguro: tira espaços, acentos e caracteres estranhos.
+    function normalizeUsername(value) {
+      return value
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9._]/g, "")
+        .replace(/^@+/, "");
+    }
+
+    // Atualiza a área visual do perfil, ou seja, aquilo que o usuário vê como rede social.
+    function renderProfile(profile = {}) {
+      const name = profile.name || "Eco Usuário";
+      const username = normalizeUsername(profile.username || "ecodescarte") || "ecodescarte";
+      const bio = profile.bio || "Transformando pequenos descartes em grandes impactos para o planeta.";
+
+      document.getElementById("displayName").textContent = name;
+      document.getElementById("displayUsername").textContent = `@${username}`;
+      document.getElementById("displayBio").textContent = bio;
+
+      document.getElementById("profileName").value = profile.name || "";
+      document.getElementById("profileUsername").value = profile.username || "";
+      document.getElementById("profileBio").value = profile.bio || "";
+
+      const avatar = document.getElementById("profileAvatarPreview");
+      const fallback = document.getElementById("profileAvatarFallback");
+
+      if (profile.avatar) {
+        avatar.src = profile.avatar;
+        avatar.style.display = "block";
+        fallback.style.display = "none";
+      } else {
+        avatar.removeAttribute("src");
+        avatar.style.display = "none";
+        fallback.style.display = "grid";
+      }
+    }
+
+    // Salva nome, usuário e bio no localStorage. Não usa email porque o perfil é social.
     function saveProfile() {
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
+      const name = document.getElementById("profileName").value.trim();
+      const username = normalizeUsername(document.getElementById("profileUsername").value.trim());
+      const bio = document.getElementById("profileBio").value.trim();
 
-      if (!name || !email) {
-        setStatus("Preencha nome e email.", "error");
+      if (!name || !username) {
+        setStatus("Preencha pelo menos o nome público e o nome de usuário.", "error");
         return;
       }
 
-      if (!isValidEmail(email)) {
-        setStatus("Digite um email válido.", "error");
-        return;
-      }
+      const current = getStoredProfile();
+      const profile = {
+        ...current,
+        name,
+        username,
+        bio,
+        updatedAt: new Date().toISOString()
+      };
 
-      const profile = { name, email, updatedAt: new Date().toISOString() };
       localStorage.setItem("ecodescarte_user", JSON.stringify(profile));
-      setStatus("Perfil salvo com sucesso!", "success");
+      renderProfile(profile);
+      setStatus("Perfil atualizado com sucesso!", "success");
       updateKPIs();
     }
 
-    // Carrega perfil salvo e trata dados corrompidos
-    function loadProfile() {
+    // Busca o perfil salvo e devolve um objeto seguro. Se estiver corrompido, limpa os dados.
+    function getStoredProfile() {
       const raw = localStorage.getItem("ecodescarte_user");
-      if (!raw) return;
+      if (!raw) return {};
 
       try {
         const user = JSON.parse(raw);
-        if (!user || typeof user !== "object") return;
-        document.getElementById("name").value = user.name || "";
-        document.getElementById("email").value = user.email || "";
+        return user && typeof user === "object" ? user : {};
       } catch {
         localStorage.removeItem("ecodescarte_user");
+        return {};
       }
     }
 
-    // Atualiza cartões de impacto com base na existência de perfil
+    // Carrega o perfil salvo ao abrir a página.
+    function loadProfile() {
+      renderProfile(getStoredProfile());
+    }
+
+    // Lê a imagem escolhida e salva como base64 no localStorage para aparecer como avatar.
+    function handleAvatarUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        setStatus("Escolha um arquivo de imagem.", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const profile = { ...getStoredProfile(), avatar: reader.result, updatedAt: new Date().toISOString() };
+        localStorage.setItem("ecodescarte_user", JSON.stringify(profile));
+        renderProfile(profile);
+        setStatus("Foto de perfil atualizada!", "success");
+        updateKPIs();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Cadastro da home: cria apenas uma sessão simples com email e senha.
+    // A ideia é deixar a entrada rápida, igual apps reais: primeiro a pessoa cria a conta,
+    // depois personaliza nome, @usuário, foto e bio na aba Perfil.
+    function registerUser() {
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value.trim();
+      const confirmPassword = document.getElementById("signupConfirmPassword").value.trim();
+
+      // 1) Verifica se todos os campos obrigatórios da home foram preenchidos.
+      if (!email || !password || !confirmPassword) {
+        setStatus("Preencha email, senha e confirmação de senha.", "error", "signupStatus");
+        return;
+      }
+
+      // 2) Valida se o email parece ter um formato correto.
+      if (!isValidEmail(email)) {
+        setStatus("Digite um email válido para continuar.", "error", "signupStatus");
+        return;
+      }
+
+      // 3) Garante uma senha mínima para não aceitar senha muito fraca na demonstração.
+      if (password.length < 6) {
+        setStatus("A senha precisa ter pelo menos 6 caracteres.", "error", "signupStatus");
+        return;
+      }
+
+      // 4) Confere se senha e confirmação são iguais.
+      if (password !== confirmPassword) {
+        setStatus("As senhas não coincidem.", "error", "signupStatus");
+        return;
+      }
+
+      // 5) Salva uma conta local simples para simulação.
+      // Em um sistema real, senha nunca deve ficar salva assim no navegador;
+      // isso seria enviado para um backend/Firebase/Supabase com autenticação segura.
+      localStorage.setItem("ecodescarte_account", JSON.stringify({
+        email,
+        password,
+        createdAt: new Date().toISOString()
+      }));
+
+      // 6) Cria uma sessão local, fazendo o usuário entrar automaticamente.
+      localStorage.setItem("ecodescarte_session", JSON.stringify({
+        email,
+        loggedAt: new Date().toISOString()
+      }));
+
+      document.body.classList.add("logged-in");
+      updateKPIs();
+      renderProfile(getStoredProfile());
+      setStatus("Cadastro criado! Agora complete seu perfil na aba Perfil.", "success", "signupStatus");
+
+      // 7) Leva o usuário para o dashboard normal depois do cadastro.
+      setTimeout(() => {
+        enableApp();
+      }, 350);
+    }
+
+    // Dados da vitrine. Separar os textos aqui facilita trocar produtos sem mexer no HTML todo.
+    const productInfo = {
+      cupom: {
+        icon: "fa-ticket",
+        visualClass: "coupon",
+        title: "Cupom sustentável",
+        points: "120 pontos",
+        text: "Desconto para incentivar compras em lojas parceiras que vendem produtos ecológicos ou reutilizáveis.",
+        benefits: ["10% de desconto em parceiros", "Recompensa rápida para usuários iniciantes", "Ajuda a manter o usuário engajado no projeto"]
+      },
+      garrafa: {
+        icon: "fa-bottle-water",
+        visualClass: "bottle",
+        title: "Garrafa eco",
+        points: "250 pontos",
+        text: "Produto físico reutilizável pensado para reduzir o uso de garrafas plásticas descartáveis no dia a dia.",
+        benefits: ["Item reutilizável", "Boa recompensa visual para a loja", "Combina com a proposta sustentável do app"]
+      },
+      plantio: {
+        icon: "fa-tree",
+        visualClass: "tree",
+        title: "Plantio simbólico",
+        points: "300 pontos",
+        text: "Uma recompensa de impacto, onde os pontos representam uma contribuição simbólica para ações ambientais.",
+        benefits: ["Reforça o propósito ambiental", "Gera sensação de participação coletiva", "Funciona bem como campanha dentro do app"]
+      },
+      selo: {
+        icon: "fa-medal",
+        visualClass: "badge",
+        title: "Selo verde",
+        points: "90 pontos",
+        text: "Um selo digital para destacar no perfil que o usuário participa de ações de descarte correto.",
+        benefits: ["Aparece no perfil social", "Baixo custo em pontos", "Incentiva competição saudável entre usuários"]
+      }
+    };
+
+    // Abre o modal grande com os detalhes do produto clicado.
+    // O fundo é desfocado pelo CSS da classe .product-modal.active.
+    function showProductDetails(key) {
+      const product = productInfo[key];
+      const modal = document.getElementById("productModal");
+      const content = document.getElementById("modalProductContent");
+      if (!product || !modal || !content) return;
+
+      content.innerHTML = `
+        <div class="modal-product-visual product-image ${product.visualClass}">
+          <i class="fa-solid ${product.icon}"></i>
+        </div>
+        <div class="modal-product-body">
+          <span class="product-tag">Recompensa da vitrine</span>
+          <h2 id="modalProductTitle">${product.title}</h2>
+          <p class="muted">${product.text}</p>
+          <strong class="hero-text">${product.points}</strong>
+          <ul class="modal-benefits">
+            ${product.benefits.map((item) => `<li>${item}</li>`).join("")}
+          </ul>
+          <button class="primary-btn" onclick="closeProductDetails()">
+            <i class="fa-solid fa-check"></i> Entendi
+          </button>
+        </div>
+      `;
+
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    // Fecha o modal. Se o clique veio no fundo escuro, fecha; se foi no card, mantém aberto.
+    function closeProductDetails(event) {
+      if (event && event.target !== document.getElementById("productModal")) return;
+      const modal = document.getElementById("productModal");
+      if (!modal) return;
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    // Atualiza os indicadores da home. Aqui eles são simulados para dar sensação de progresso.
     function updateKPIs() {
       const hasProfile = Boolean(localStorage.getItem("ecodescarte_user"));
       const points = hasProfile ? 180 : 30;
       const drops = hasProfile ? 6 : 1;
       const co2 = hasProfile ? "12" : "2";
 
-      document.getElementById("kpiPoints").textContent = points;
-      document.getElementById("kpiDrops").textContent = drops;
-      document.getElementById("kpiCO2").textContent = `${co2}kg`;
+      const pointsEl = document.getElementById("kpiPoints");
+      const dropsEl = document.getElementById("kpiDrops");
+      const co2El = document.getElementById("kpiCO2");
+      if (pointsEl) pointsEl.textContent = points;
+      if (dropsEl) dropsEl.textContent = drops;
+      if (co2El) co2El.textContent = `${co2}kg`;
     }
 
-    // Libera visualmente o app após login válido
+    // Após login, mantém a apresentação como tela principal e apenas salva a sessão local.
     function enableApp() {
-      document.body.classList.remove("logged-out");
+      document.body.classList.add("logged-in");
       showPage("home");
       updateKPIs();
       searchLocations();
     }
 
-    // Volta para modo deslogado e mostra tela de login
+    // Sem sessão salva, o site continua abrindo normalmente na apresentação em vídeo.
+    // Esta função não manda mais o usuário para o login.
     function disableApp() {
-      document.body.classList.add("logged-out");
-      document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
-      document.getElementById("login").classList.add("active");
-      closeMenu();
+      document.body.classList.remove("logged-in");
+      showPage("home");
+      updateKPIs();
+      searchLocations();
     }
 
-    // Processa login (demo local) e persiste sessão no navegador
+    // Login demonstrativo: valida campos e salva uma sessão local.
     function login() {
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
@@ -826,14 +2743,22 @@
       setTimeout(enableApp, 150);
     }
 
-    // Encerra a sessão local e retorna para a tela de login
+    // Sai do perfil atual.
+    // Importante: esta função remove somente a sessão ativa.
+    // Ela NÃO apaga o perfil salvo, a foto, a bio ou o nome de usuário.
+    // Assim, se a pessoa entrar novamente no mesmo navegador, os dados locais ainda podem aparecer.
     function logout() {
       localStorage.removeItem("ecodescarte_session");
-      setStatus("Você saiu da conta.", "success", "loginStatus");
+
+      const loginStatus = document.getElementById("loginStatus");
+      if (loginStatus) {
+        setStatus("Você saiu deste perfil.", "success", "loginStatus");
+      }
+
       disableApp();
     }
 
-    // Recupera sessão salva ao abrir a página
+    // Verifica ao abrir o site se já existe sessão salva no navegador.
     function loadSession() {
       const raw = localStorage.getItem("ecodescarte_session");
       if (!raw) {
@@ -856,22 +2781,25 @@
       }
     }
 
+    // Eventos globais: Escape fecha menu e Enter faz login quando a tela de login está aberta.
     window.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeMenu();
+      if (event.key === "Escape") {
+        closeMenu();
+        closeProductDetails();
+      }
       if (event.key === "Enter" && document.getElementById("login").classList.contains("active")) {
         login();
       }
     });
 
+    // Atualiza a lista de pontos de coleta enquanto o usuário digita ou troca categoria.
     document.getElementById("search").addEventListener("input", searchLocations);
     document.getElementById("category").addEventListener("change", searchLocations);
 
+    // Inicialização do site: carrega perfil, carrega sessão e prepara os dados visuais.
     window.onload = () => {
       loadProfile();
       loadSession();
-      if (document.body.classList.contains("logged-out")) {
-        showPage("home");
-      }
     };
   </script>
 </body>
